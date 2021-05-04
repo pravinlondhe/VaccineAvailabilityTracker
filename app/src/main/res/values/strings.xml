@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">VacineAvailabilityTracker</string>
+    <string name="start_tracking">Start tracking</string>
+    <string name="stop_ringtone">Stop Ringtone</string>
+</resources>
