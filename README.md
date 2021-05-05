@@ -13,5 +13,5 @@ App will start tracking for entered pincode and if there is vaccine available it
 
 **Screenshot**
 
-![alt text](https://github.com/[pravinlondhe]/[VaccineAvailabilityTracker]/blob/[master]/screenshot/scr1.png?raw=true)
+![Sample Screenshot](https://github.com/pravinlondhe/VaccineAvailabilityTracker/blob/master/screenshot/scr1.png)
 
