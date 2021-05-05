@@ -74,8 +74,8 @@ class AvailabilityService : Service() {
         return MyBinder()
     }
 
-    fun starNetworkRequest(desc: AssetFileDescriptor): LiveData<Center> {
-        val data = MutableLiveData<Center>()
+    fun starNetworkRequest(desc: AssetFileDescriptor): LiveData<Response> {
+        val data = MutableLiveData<Response>()
 
         r = Runnable {
             serviceScope.launch(Dispatchers.IO) {
@@ -90,25 +90,29 @@ class AvailabilityService : Service() {
                         if (center.centerId == CENTER_ID) {
                             val sessions = center.sessions
 //                            playRingtone(desc) // for testing
-//                            data.postValue(center) // for testing
+                            data.postValue(Response.Success(center))
                             sessions.forEach { session ->
                                 if (session.availableCapacity > 0) {
                                     playRingtone(desc)
-                                    data.postValue(center)
                                 }
                             }
                         } else {
                             val sessions = center.sessions
                             sessions.forEach { session ->
 //                                playRingtone(desc) // for testing
-//                                data.postValue(center) // for testing
+                                data.postValue(Response.Success(center))
                                 if (session.availableCapacity > 0) {
                                     playRingtone(desc)
-                                    data.postValue(center)
                                 }
                             }
                         }
                     }
+
+                    if (body.centers.isEmpty()) {
+                        data.postValue(Response.Error("No centers available for $pin_code"))
+                    }
+                } else {
+                    data.postValue(Response.Error(response.message()))
                 }
                 handler.postDelayed(r, FREQ)
             }
@@ -118,8 +122,8 @@ class AvailabilityService : Service() {
         return data
     }
 
-    fun starNetworkRequestByDistrict(desc: AssetFileDescriptor): LiveData<Center> {
-        val data = MutableLiveData<Center>()
+    /*fun starNetworkRequestByDistrict(desc: AssetFileDescriptor): LiveData<Response> {
+        val data = MutableLiveData<Response>()
 
         r = Runnable {
             serviceScope.launch(Dispatchers.IO) {
@@ -135,25 +139,27 @@ class AvailabilityService : Service() {
                         if (center.centerId == CENTER_ID) {
                             val sessions = center.sessions
 //                            playRingtone(desc) // for testing
-//                            data.postValue(center) // for testing
+                            data.postValue(Response.Success(center)) // for testing
                             sessions.forEach { session ->
                                 if (session.availableCapacity > 0) {
                                     playRingtone(desc)
-                                    data.postValue(center)
+                                    data.postValue(Response.Success(center))
                                 }
                             }
                         } else {
                             val sessions = center.sessions
                             sessions.forEach { session ->
 //                                playRingtone(desc) // for testing
-//                                data.postValue(center) // for testing
+                                data.postValue(Response.Success(center)) // for testing
                                 if (session.availableCapacity > 0) {
                                     playRingtone(desc)
-                                    data.postValue(center)
+                                    data.postValue(Response.Success(center))
                                 }
                             }
                         }
                     }
+                } else {
+                    data.postValue(Response.Error(response.message()))
                 }
                 handler.postDelayed(r, FREQ)
             }
@@ -161,7 +167,7 @@ class AvailabilityService : Service() {
 
         handler.post(r)
         return data
-    }
+    }*/
 
     fun stopRingtone() {
         try {
@@ -193,6 +199,11 @@ class AvailabilityService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         serviceScope.cancel()
+    }
+
+    sealed class Response {
+        data class Success(val center: Center) : Response()
+        data class Error(val msg: String) : Response()
     }
 
     inner class MyBinder : Binder() {

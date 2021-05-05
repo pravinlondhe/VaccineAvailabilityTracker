@@ -81,10 +81,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun serviceNetworkRequest() {
         availabilityService?.starNetworkRequest(assets.openFd(FILE_NAME))?.observe(this) {
-            it?.let {
-                val text = "${it.name}-${System.currentTimeMillis()}: ${it.sessions}"
-                binding.tvOutput.text = text
-                binding.buttonStopRing.visibility = View.VISIBLE
+            when (it) {
+                is AvailabilityService.Response.Success -> {
+                    it.center.let { cen ->
+                        val text = "${cen.name}-${System.currentTimeMillis()}: ${cen.sessions}"
+                        binding.tvOutput.text = text
+                        binding.buttonStopRing.visibility = View.VISIBLE
+                    }
+                }
+                is AvailabilityService.Response.Error -> {
+                    binding.tvOutput.text = it.msg
+                }
             }
         }
     }
