@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Vaccine Availability Tracker</string>
     <string name="start_tracking">Start tracking</string>
-    <string name="stop_ringtone">Stop Ringtone</string>
+    <string name="stop_ringtone">Stop Sound</string>
     <string name="enter_pin_code_here">Enter Pincode here</string>
     <string name="pin_code">Pincode :</string>
 </resources>

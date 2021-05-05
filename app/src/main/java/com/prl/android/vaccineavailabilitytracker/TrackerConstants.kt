@@ -1,4 +1,4 @@
-package com.prl.android.vacineavailabilitytracker
+package com.prl.android.vaccineavailabilitytracker
 
 import java.util.*
 
@@ -12,5 +12,5 @@ object TrackerConstants {
             }
         }
     const val CENTER_ID = 692532 // vikramnagar center tracker
-    const val FREQ = 60 * 1000L
+    const val FREQ =  10 * 1000L // shouldn't not more than 20 per minute
 }

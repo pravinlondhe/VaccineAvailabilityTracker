@@ -1,4 +1,4 @@
-package com.prl.android.vacineavailabilitytracker
+package com.prl.android.vaccineavailabilitytracker
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -17,27 +17,28 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.CENTER_ID
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.FREQ
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.date
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.pin_code
-import com.prl.android.vacineavailabilitytracker.data.Center
-import com.prl.android.vacineavailabilitytracker.data.VaccineAvailability
-import com.prl.android.vacineavailabilitytracker.domain.VaccineAvailabilityTracker
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.CENTER_ID
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.FREQ
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.date
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.pin_code
+import com.prl.android.vaccineavailabilitytracker.data.Center
+import com.prl.android.vaccineavailabilitytracker.data.VaccineAvailability
+import com.prl.android.vaccineavailabilitytracker.domain.VaccineAvailabilityTracker
+import com.prl.android.vacineavailabilitytracker.R
+import kotlinx.coroutines.*
+import java.lang.Runnable
 
 private const val NOTIFICATION_ID = 10001
 private const val CHANNEL_ID = "10005"
 
 class AvailabilityService : Service() {
-    private var isSirenPlaying = false
+    private val serviceScope: CoroutineScope by lazy {
+        CoroutineScope(Dispatchers.IO + Job())
+    }
     private val handler: Handler by lazy {
         Handler(Looper.getMainLooper())
     }
-    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var mediaPlayer: MediaPlayer
     private lateinit var r: Runnable
 
     override fun onCreate() {
@@ -77,7 +78,7 @@ class AvailabilityService : Service() {
         val data = MutableLiveData<Center>()
 
         r = Runnable {
-            GlobalScope.launch(Dispatchers.IO) {
+            serviceScope.launch(Dispatchers.IO) {
                 Log.d(TAG, "starting for date:$date")
                 val response = VaccineAvailabilityTracker.availabilityService.getAvailability(
                     pin_code,
@@ -117,32 +118,81 @@ class AvailabilityService : Service() {
         return data
     }
 
+    fun starNetworkRequestByDistrict(desc: AssetFileDescriptor): LiveData<Center> {
+        val data = MutableLiveData<Center>()
+
+        r = Runnable {
+            serviceScope.launch(Dispatchers.IO) {
+                Log.d(TAG, "starting for date:$date")
+                val response =
+                    VaccineAvailabilityTracker.availabilityService.getAvailabilityByDistrict(
+                        "363",
+                        date
+                    )
+                if (response.isSuccessful) {
+                    val body = response.body() as VaccineAvailability
+                    body.centers.forEach { center ->
+                        if (center.centerId == CENTER_ID) {
+                            val sessions = center.sessions
+//                            playRingtone(desc) // for testing
+//                            data.postValue(center) // for testing
+                            sessions.forEach { session ->
+                                if (session.availableCapacity > 0) {
+                                    playRingtone(desc)
+                                    data.postValue(center)
+                                }
+                            }
+                        } else {
+                            val sessions = center.sessions
+                            sessions.forEach { session ->
+//                                playRingtone(desc) // for testing
+//                                data.postValue(center) // for testing
+                                if (session.availableCapacity > 0) {
+                                    playRingtone(desc)
+                                    data.postValue(center)
+                                }
+                            }
+                        }
+                    }
+                }
+                handler.postDelayed(r, FREQ)
+            }
+        }
+
+        handler.post(r)
+        return data
+    }
+
     fun stopRingtone() {
-        mediaPlayer?.stop()
-        isSirenPlaying = false
+        try {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        } catch (e: IllegalStateException) {
+            Log.d(TAG, "Illegal state...")
+        }
     }
 
     private suspend fun playRingtone(desc: AssetFileDescriptor) {
         Log.d(TAG, "Playing music from service...")
         withContext(Dispatchers.Main) {
-            if (null == mediaPlayer) {
-                mediaPlayer = MediaPlayer().apply {
+            mediaPlayer = MediaPlayer()
+            mediaPlayer.run {
+                if (isPlaying.not()) {
                     setDataSource(desc)
-                    isLooping = true
                     setVolume(100f, 100f)
-                }
-            }
-            mediaPlayer?.run {
-                if (isPlaying.not() && isSirenPlaying.not()) {
                     prepareAsync()
                     setOnPreparedListener {
                         Log.d(TAG, "Playing music from service")
                         start()
-                        isSirenPlaying = true
                     }
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
     }
 
     inner class MyBinder : Binder() {

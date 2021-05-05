@@ -1,4 +1,4 @@
-package com.prl.android.vacineavailabilitytracker
+package com.prl.android.vaccineavailabilitytracker
 
 import android.content.ComponentName
 import android.content.Context
@@ -8,12 +8,13 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.Settings
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.prl.android.vaccineavailabilitytracker.viewmodel.AvailabilityTrackerViewModel
 import com.prl.android.vacineavailabilitytracker.databinding.ActivityMainBinding
-import com.prl.android.vacineavailabilitytracker.viewmodel.AvailabilityTrackerViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,26 +38,28 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel =
             ViewModelProvider.NewInstanceFactory().create(AvailabilityTrackerViewModel::class.java)
         val intent = Intent(this, AvailabilityService::class.java)
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
-        binding.etPinCode.setText(TrackerConstants.pin_code)
-
-
-        binding.buttonStartTrack.setOnClickListener {
+        with(binding) {
+            etPinCode.setText(TrackerConstants.pin_code)
+            tvOutput.movementMethod = ScrollingMovementMethod()
+            buttonStartTrack.setOnClickListener {
 //            viewModelNetworkStartRequest()
-            if (binding.etPinCode.text.isNotBlank()) {
-                TrackerConstants.pin_code = binding.etPinCode.text.toString()
+                if (etPinCode.text.isNotBlank()) {
+                    TrackerConstants.pin_code = etPinCode.text.toString()
+                }
+                serviceNetworkRequest()
             }
-            serviceNetworkRequest()
-        }
 
-        binding.buttonStopRing.setOnClickListener {
-            stopRingtone()
-            availabilityService?.stopRingtone()
+            buttonStopRing.setOnClickListener {
+                stopRingtone()
+                availabilityService?.stopRingtone()
+            }
         }
     }
 
@@ -79,7 +82,8 @@ class MainActivity : AppCompatActivity() {
     private fun serviceNetworkRequest() {
         availabilityService?.starNetworkRequest(assets.openFd(FILE_NAME))?.observe(this) {
             it?.let {
-                val text = "${it.name}-${System.currentTimeMillis()}: ${it.sessions}"
+                val tvText = "${binding.tvOutput.text} \n"
+                val text = "$tvText \n ${it.name}-${System.currentTimeMillis()}: ${it.sessions}"
                 binding.tvOutput.text = text
                 binding.buttonStopRing.visibility = View.VISIBLE
             }

@@ -1,4 +1,4 @@
-package com.prl.android.vacineavailabilitytracker.viewmodel
+package com.prl.android.vaccineavailabilitytracker.viewmodel
 
 import android.os.Handler
 import android.os.Looper
@@ -7,13 +7,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.CENTER_ID
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.FREQ
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.date
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.pin_code
-import com.prl.android.vacineavailabilitytracker.data.Center
-import com.prl.android.vacineavailabilitytracker.data.VaccineAvailability
-import com.prl.android.vacineavailabilitytracker.domain.VaccineAvailabilityTracker
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.CENTER_ID
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.FREQ
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.date
+import com.prl.android.vaccineavailabilitytracker.TrackerConstants.pin_code
+import com.prl.android.vaccineavailabilitytracker.data.Center
+import com.prl.android.vaccineavailabilitytracker.data.VaccineAvailability
+import com.prl.android.vaccineavailabilitytracker.domain.VaccineAvailabilityTracker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

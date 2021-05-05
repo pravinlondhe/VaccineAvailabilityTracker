@@ -1,4 +1,4 @@
-package com.prl.android.vacineavailabilitytracker.data
+package com.prl.android.vaccineavailabilitytracker.data
 import com.google.gson.annotations.SerializedName
 
 data class Center(
