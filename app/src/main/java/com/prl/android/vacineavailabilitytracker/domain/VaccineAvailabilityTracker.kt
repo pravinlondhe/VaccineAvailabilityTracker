@@ -8,6 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object VaccineAvailabilityTracker {
+    private const val TAG = "VaccineAvaTracker"
     private const val BASE_URL = "https://cdn-api.co-vin.in/"
     private val okHttpClient by lazy {
         OkHttpClient.Builder().apply {
@@ -26,7 +27,7 @@ object VaccineAvailabilityTracker {
     val availabilityService = retrofit.create(VaccineAvailabilityService::class.java)
 
     fun getAvailabilityServices() : VaccineAvailabilityService{
-        Log.d("Pravin","sending request")
+        Log.d(TAG, "sending request")
         val client = OkHttpClient.Builder().apply{
             connectTimeout(30, TimeUnit.SECONDS)
             readTimeout(30, TimeUnit.SECONDS)

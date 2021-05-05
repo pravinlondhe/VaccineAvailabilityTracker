@@ -7,6 +7,32 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/tvPincode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:padding="4dp"
+        android:text="@string/pin_code"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/etPinCode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/etPinCode" />
+
+    <EditText
+        android:id="@+id/etPinCode"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:hint="@string/enter_pin_code_here"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:paddingStart="16dp"
+        android:paddingEnd="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tvPincode"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
         android:id="@+id/tvOutput"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -15,7 +41,7 @@
         app:layout_constraintBottom_toTopOf="@id/buttonStopRing"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/etPinCode" />
 
     <Button
         android:id="@+id/buttonStopRing"

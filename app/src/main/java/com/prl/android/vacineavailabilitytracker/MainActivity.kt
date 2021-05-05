@@ -24,13 +24,13 @@ class MainActivity : AppCompatActivity() {
 
     private val serviceConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, binder: IBinder?) {
-            Log.d("Pravin", "onServiceConnected:")
+            Log.d(TAG, "onServiceConnected:")
             val b = binder as AvailabilityService.MyBinder
             availabilityService = b.avlService
         }
 
         override fun onServiceDisconnected(p0: ComponentName?) {
-            Log.d("Pravin", "ServiceDisconnected")
+            Log.d(TAG, "ServiceDisconnected")
             availabilityService = null
         }
     }
@@ -43,9 +43,14 @@ class MainActivity : AppCompatActivity() {
             ViewModelProvider.NewInstanceFactory().create(AvailabilityTrackerViewModel::class.java)
         val intent = Intent(this, AvailabilityService::class.java)
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        binding.etPinCode.setText(TrackerConstants.pin_code)
+
 
         binding.buttonStartTrack.setOnClickListener {
 //            viewModelNetworkStartRequest()
+            if (binding.etPinCode.text.isNotBlank()) {
+                TrackerConstants.pin_code = binding.etPinCode.text.toString()
+            }
             serviceNetworkRequest()
         }
 
@@ -60,7 +65,6 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer = MediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI)
         }
         mediaPlayer?.run {
-//            prepareAsync()
             setOnPreparedListener {
                 start()
                 binding.buttonStopRing.visibility = View.VISIBLE
@@ -73,11 +77,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun serviceNetworkRequest() {
-        availabilityService?.starNetworkRequest()?.observe(this) {
+        availabilityService?.starNetworkRequest(assets.openFd(FILE_NAME))?.observe(this) {
             it?.let {
                 val text = "${it.name}-${System.currentTimeMillis()}: ${it.sessions}"
                 binding.tvOutput.text = text
-                playRingtone()
+                binding.buttonStopRing.visibility = View.VISIBLE
             }
         }
     }
@@ -90,5 +94,10 @@ class MainActivity : AppCompatActivity() {
                 playRingtone()
             }
         }
+    }
+
+    private companion object {
+        const val TAG = "MainActivity"
+        const val FILE_NAME = "siren.mp3"
     }
 }

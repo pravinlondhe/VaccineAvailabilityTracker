@@ -8,9 +8,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.prl.android.vacineavailabilitytracker.TrackerConstants.CENTER_ID
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.DATE
 import com.prl.android.vacineavailabilitytracker.TrackerConstants.FREQ
-import com.prl.android.vacineavailabilitytracker.TrackerConstants.PIN_CODE
+import com.prl.android.vacineavailabilitytracker.TrackerConstants.date
+import com.prl.android.vacineavailabilitytracker.TrackerConstants.pin_code
 import com.prl.android.vacineavailabilitytracker.data.Center
 import com.prl.android.vacineavailabilitytracker.data.VaccineAvailability
 import com.prl.android.vacineavailabilitytracker.domain.VaccineAvailabilityTracker
@@ -28,24 +28,41 @@ class AvailabilityTrackerViewModel : ViewModel() {
 
         r = Runnable {
             viewModelScope.launch(Dispatchers.IO) {
-                Log.d("Pravin", "staring..")
+                Log.d(TAG, "starting for date:$date")
                 val response = VaccineAvailabilityTracker.availabilityService.getAvailability(
-                    PIN_CODE,
-                    DATE
+                    pin_code,
+                    date
                 )
                 if (response.isSuccessful) {
                     val body = response.body() as VaccineAvailability
                     val centers = body.centers.forEach { center ->
                         if (center.centerId == CENTER_ID) {
-                            data.postValue(center)
+                            val sessions = center.sessions
+                            sessions.forEach { session ->
+                                if (session.availableCapacity > 0) {
+                                    data.postValue(center)
+                                }
+                            }
+                        } else {
+                            val sessions = center.sessions
+                            sessions.forEach { session ->
+                                if (session.availableCapacity > 0) {
+                                    data.postValue(center)
+                                }
+                            }
                         }
                     }
                 }
+
                 handler.postDelayed(r, FREQ)
             }
         }
 
         handler.postDelayed(r, FREQ)
         return data
+    }
+
+    private companion object {
+        const val TAG = "AvailTrackerViewModel"
     }
 }
