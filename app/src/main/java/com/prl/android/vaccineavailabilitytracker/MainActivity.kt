@@ -82,8 +82,7 @@ class MainActivity : AppCompatActivity() {
     private fun serviceNetworkRequest() {
         availabilityService?.starNetworkRequest(assets.openFd(FILE_NAME))?.observe(this) {
             it?.let {
-                val tvText = "${binding.tvOutput.text} \n"
-                val text = "$tvText \n ${it.name}-${System.currentTimeMillis()}: ${it.sessions}"
+                val text = "${it.name}-${System.currentTimeMillis()}: ${it.sessions}"
                 binding.tvOutput.text = text
                 binding.buttonStopRing.visibility = View.VISIBLE
             }
