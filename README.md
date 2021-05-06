@@ -7,9 +7,10 @@ Simple app which gives you sound notification on availability of vaccine in trac
 1. Put your pincode in editText
 2. Click on start tracking button
 
-App will start tracking for entered pincode and if there is vaccine available it will give sound notification. App will check vaccine availablity for every 10sec.
+App will start tracking for entered pincode and if there is vaccine available it will give sound notification. App will check vaccine availablity for every 30sec.
 
-**NOTE : Don't remove app from back stack.**
+**NOTE : 1. Don't remove app from back stack.
+2. Keep in mind that if you run application for longer time it will consume more battery**
 
 **Screenshot**
 

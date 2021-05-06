@@ -12,5 +12,6 @@ object TrackerConstants {
             }
         }
     const val CENTER_ID = 692532 // vikramnagar center tracker
-    const val FREQ =  10 * 1000L // shouldn't not more than 20 per minute
+    const val FREQ =  30 * 1000L // shouldn't not more than 20 per minute
+    // If kept more frequency more power consumtion
 }
